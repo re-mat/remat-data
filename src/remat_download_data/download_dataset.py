@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import typer
+import tomli
 from pyclowder.client import ClowderClient
 from rich.console import Console
 from rich.progress import track
@@ -11,6 +12,15 @@ from rich.table import Table
 
 with Path.open(Path("clowder_key.txt")) as f:
     key = f.read().strip()
+
+
+def load_config():
+    with Path("pyproject.toml").open("rb") as f:
+        config = tomli.load(f)
+    return config["tool"]["remat_data"]
+
+space_map = load_config()["spaces"]
+print('space_map', space_map["DSC_Post_Cures"])
 
 clowder = ClowderClient(host="https://re-mat.clowder.ncsa.illinois.edu/", key=key)
 
@@ -122,5 +132,43 @@ def download_dataset(dataset_id: str):
         )
 
 
+@spaces_app.command("upload", no_args_is_help=True)
+def upload_file(space_name: str, file_name: str) -> None:
+    """
+    """
+    # https://re-mat.clowder.ncsa.illinois.edu/dataset/submit
+    space_id = space_map[space_name]
+
+
+
+    # STEP 1: Create a new dummy dataset:
+    payload  = {
+  "name": file_name,
+  "description": "Dummy dataset created by CLI",
+  "space": [space_id],
+  "collection": []
+}
+    print("Payload is", payload)
+    
+    resp = clowder.post("/datasets/createempty", payload)
+    print("Response is", resp)
+    if not resp:
+        console.print("Failed to create a new dataset")
+        return
+    dataset_id = resp["id"]
+    console.print(f"Created a new dataset with ID: {dataset_id}")
+
+
+
+
+
+    # # STEP 2: Upload the file
+    # clowder.post("/dataset/submit", {"space": space_id, "file": file_name})
+    
+
+
+# upload_file("679a970fe4b00fd657cb3880", "tks-dummy-dataset-cli-4")
+
 def main():
     app()
+    
