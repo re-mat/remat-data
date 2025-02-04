@@ -19,7 +19,9 @@ def load_config():
         config = tomli.load(f)
     return config["tool"]["remat_data"]
 
-space_map = load_config()["spaces"]
+properties = load_config()
+config = properties["config"]
+space_map = properties["spaces"]
 print('space_map', space_map["DSC_Post_Cures"])
 
 clowder = ClowderClient(host="https://re-mat.clowder.ncsa.illinois.edu/", key=key)
@@ -139,11 +141,9 @@ def upload_file(space_name: str, file_name: str) -> None:
     # https://re-mat.clowder.ncsa.illinois.edu/dataset/submit
     space_id = space_map[space_name]
 
-
-
     # STEP 1: Create a new dummy dataset:
     payload  = {
-  "name": file_name,
+  "name": "TKS-DUMMY-DATASET", #TODO: Change this to the actual file name from arg
   "description": "Dummy dataset created by CLI",
   "space": [space_id],
   "collection": []
@@ -156,19 +156,18 @@ def upload_file(space_name: str, file_name: str) -> None:
         console.print("Failed to create a new dataset")
         return
     dataset_id = resp["id"]
-    console.print(f"Created a new dataset with ID: {dataset_id}")
+
+    dataset_url = f"{config[f'clowder_base_url']}/{config['dataset_path']}/{dataset_id}?space={space_id}"
+
+    print(clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name))
+    console.print(f"Created a new dataset with ID: {dataset_url}")
 
 
 
 
 
-    # # STEP 2: Upload the file
-    # clowder.post("/dataset/submit", {"space": space_id, "file": file_name})
-    
-
-
-# upload_file("679a970fe4b00fd657cb3880", "tks-dummy-dataset-cli-4")
 
 def main():
     app()
-    
+
+
