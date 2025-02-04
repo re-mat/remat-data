@@ -146,6 +146,10 @@ messages_control.disable = [
   "missing-function-docstring",
   "wrong-import-position",
 ]
+[tool.remat_data.config]
+clowder_base_url = "https://re-mat.clowder.ncsa.illinois.edu"
+dataset_path = "datasets"
+
 
 [tool.remat_data.spaces]
 DSC_Cure_Kinetics = "64343b6be4b01a23c58bad90"
