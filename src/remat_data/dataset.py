@@ -134,7 +134,7 @@ def download_dataset(dataset_id: str):
 
 
 @spaces_app.command("upload", no_args_is_help=True)
-def upload_file(space_name: str, file_names: list[str] = typer.Argument(...)) -> None:
+def upload_file(space_name: str = typer.Argument(..., help="Name of the Clowder space (use quotes if it contains spaces)"), file_names: list[str] = typer.Argument(...)) -> None:
     """
        Upload given files to a specified space
 
@@ -142,7 +142,7 @@ def upload_file(space_name: str, file_names: list[str] = typer.Argument(...)) ->
     A default dataset is created and the files are uploaded under the newly created dataset
 
     Args:
-        space_name (str): The Clowder space name where the files must be uploaded.
+        space_name (str): The Clowder space name where the files must be uploaded. Enclose in quotes if space name contains spaces
         file_names List[str]: List of filenames to be uploaded. Files must be present at the directory where remat-data is run
     Usage:
       remat-data spaces upload <space_name> <file_name1> <file_name2> <file_name3> ...

@@ -70,11 +70,12 @@ remat-data spaces download 6669d4d0e4b0a2d1b9b9a797
 
 Using the `upload` command, you can upload files to a space. The command takes
 the space name and a list of file name to upload. A default dataset is created and the files are uploaded under the newly created dataset
+Enclose in quotes if space name contains spaces
 
 Space names and UUIDs Mapping, and other configurations are stored in the pyproject.toml file.
 
 ```bash
-remat-data spaces upload DSC Post Cures data.csv data2.csv
+remat-data spaces upload "DSC Post Cures" data.csv data2.csv
 ```
 
 <!-- SPHINX-START -->
