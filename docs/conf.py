@@ -3,10 +3,10 @@ from __future__ import annotations
 import importlib.metadata
 from typing import Any
 
-project = "remat-data-downloader"
+project = "remat-data"
 copyright = "2024, Ben Galewsky"
 author = "Ben Galewsky"
-version = release = importlib.metadata.version("remat_data_downloader")
+version = release = importlib.metadata.version("remat_data")
 
 extensions = [
     "myst_parser",

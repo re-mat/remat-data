@@ -6,7 +6,7 @@ email: bengal1@illinois.edu
 full_name: Ben Galewsky
 license: BSD
 org: re-mat
-project_name: remat-data-downloader
+project_name: remat-data
 project_short_description: Download datasets from the RE-MAT Clowder
 url: https://github.com/re-mat/remat-data-downloader
 vcs: true

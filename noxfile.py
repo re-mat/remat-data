@@ -32,7 +32,7 @@ def pylint(session: nox.Session) -> None:
     # This needs to be installed into the package environment, and is slower
     # than a pre-commit check
     session.install(".", "pylint>=3.2")
-    session.run("pylint", "remat_download_data", *session.posargs)
+    session.run("pylint", "remat_data", *session.posargs)
 
 
 @nox.session
@@ -89,7 +89,7 @@ def build_api_docs(session: nox.Session) -> None:
         "--module-first",
         "--no-toc",
         "--force",
-        "src/remat_download_data",
+        "src/remat_data",
     )
 
 
