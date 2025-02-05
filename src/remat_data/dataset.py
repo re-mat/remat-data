@@ -22,7 +22,6 @@ def load_config():
 properties = load_config()
 config = properties["config"]
 space_map = properties["spaces"]
-print('space_map', space_map["DSC_Post_Cures"])
 
 clowder = ClowderClient(host="https://re-mat.clowder.ncsa.illinois.edu/", key=key)
 
@@ -135,36 +134,51 @@ def download_dataset(dataset_id: str):
 
 
 @spaces_app.command("upload", no_args_is_help=True)
-def upload_file(space_name: str, file_name: str) -> None:
+def upload_file(space_name: str, file_names: list[str] = typer.Argument(...)) -> None:
     """
+       Upload given files to a specified space
+
+    This command uploads the files given in the arguments to the specified space_name.
+    A default dataset is created and the files are uploaded under the newly created dataset
+
+    Args:
+        space_name (str): The Clowder space name where the files must be uploaded.
+        file_names List[str]: List of filenames to be uploaded. Files must be present at the directory where remat-data is run
+    Usage:
+      remat-data spaces upload <space_name> <file_name1> <file_name2> <file_name3> ...
+
+    Example:
+      remat-data spaces upload sample_space test_file.txt test_file2.txt
+
+    Note:
+    - The space name must match exactly with the one in Clowder
+    - Files to be uploaded must be in the directory where remat-data is installed/run
     """
-    # https://re-mat.clowder.ncsa.illinois.edu/dataset/submit
     space_id = space_map[space_name]
 
     # STEP 1: Create a new dummy dataset:
     payload  = {
-  "name": "TKS-DUMMY-DATASET", #TODO: Change this to the actual file name from arg
-  "description": "Dummy dataset created by CLI",
+  "name": config['default_new_dataset_name'], #TODO: Change this to the actual file name from arg
+  "description": "Default dataset created by CLI",
   "space": [space_id],
   "collection": []
 }
-    print("Payload is", payload)
-    
     resp = clowder.post("/datasets/createempty", payload)
-    print("Response is", resp)
     if not resp:
-        console.print("Failed to create a new dataset")
+        console.print("Upload Failed: Failed to create a new dataset")
         return
     dataset_id = resp["id"]
-
     dataset_url = f"{config[f'clowder_base_url']}/{config['dataset_path']}/{dataset_id}?space={space_id}"
 
-    print(clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name))
-    console.print(f"Created a new dataset with ID: {dataset_url}")
+    # STEP 2: Upload files to the newly created dataset
+    for file_name in track(file_names, description="Uploading..."):
+
+        file_id = clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name)
+        if not file_id:
+            console.print(f"Error uploading file {file_name}")
 
 
-
-
+    console.print(f"Uploaded Files to newly created dataset: {dataset_url}")
 
 
 def main():
