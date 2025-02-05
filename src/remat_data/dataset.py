@@ -2,29 +2,21 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import typer
-import tomli
 from pyclowder.client import ClowderClient
+
+
 from rich.console import Console
 from rich.progress import track
 from rich.table import Table
+from .config import config, space_map
 
 with Path.open(Path("clowder_key.txt")) as f:
     key = f.read().strip()
 
-
-def load_config():
-    with Path("pyproject.toml").open("rb") as f:
-        config = tomli.load(f)
-    return config["tool"]["remat_data"]
-
-properties = load_config()
-config = properties["config"]
-space_map = properties["spaces"]
-
 clowder = ClowderClient(host="https://re-mat.clowder.ncsa.illinois.edu/", key=key)
-
 console = Console()
 
 app = typer.Typer(no_args_is_help=True)
@@ -133,8 +125,17 @@ def download_dataset(dataset_id: str):
         )
 
 
+
+# Each space is a typer option
 @spaces_app.command("upload", no_args_is_help=True)
-def upload_file(space_name: str = typer.Argument(..., help="Name of the Clowder space (use quotes if it contains spaces)"), file_names: list[str] = typer.Argument(...)) -> None:
+def upload_file(
+        Cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
+        PostCure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
+        FrontVelocity: bool = typer.Option(False, "--FrontVelocity", help=" Space: Front velocities"),
+
+
+        dataset_name: Optional[str] = typer.Option(None, "--name", help="Optional name for the dataset"),
+        file_names: list[str] = typer.Argument(...)) -> None:
     """
        Upload given files to a specified space
 
@@ -142,24 +143,34 @@ def upload_file(space_name: str = typer.Argument(..., help="Name of the Clowder 
     A default dataset is created and the files are uploaded under the newly created dataset
 
     Args:
-        space_name (str): The Clowder space name where the files must be uploaded. Enclose in quotes if space name contains spaces
+        Each space is a flag that specifies the space to upload the files to.
+        dataset_name (str): Optional name for the dataset. If not provided, a default name is used.
         file_names List[str]: List of filenames to be uploaded. Files must be present at the directory where remat-data is run
     Usage:
-      remat-data spaces upload <space_name> <file_name1> <file_name2> <file_name3> ...
+       remat-data spaces upload --<space_name> --name <dataset_name> <file1> <file2>
 
     Example:
-      remat-data spaces upload sample_space test_file.txt test_file2.txt
-
+    remat-data spaces upload --DSC_Cure_Kinetics --name Test_Dataset test3.csv DSC_Curve.csv
     Note:
-    - The space name must match exactly with the one in Clowder
+    - The space_name flag is mandatory. Use --help to see valid space names
     - Files to be uploaded must be in the directory where remat-data is installed/run
     """
+
+    # Keep this dictionary consistent with the space_map in config.py
+    space_names = {
+        "DSC Cure Kinetics": Cure,
+        "DSC Post Cures": PostCure,
+        "Front velocities": FrontVelocity,
+    }
+    space_name = next((name for name, value in space_names.items() if value), None)
+    dataset_name = dataset_name if dataset_name else config['default_new_dataset_name']
     space_id = space_map[space_name]
+    print(f"Uploading to Space: {space_name} and {space_id}")
 
     # STEP 1: Create a new dummy dataset:
     payload  = {
-  "name": config['default_new_dataset_name'], #TODO: Change this to the actual file name from arg
-  "description": "Default dataset created by CLI",
+  "name": dataset_name,
+  "description": "Dataset created by CLI",
   "space": [space_id],
   "collection": []
 }
