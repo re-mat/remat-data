@@ -1,4 +1,4 @@
-# RE-MAT Data Downloader
+# RE-MAT Data 
 
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
@@ -9,7 +9,7 @@
 
 [![GitHub Discussion][github-discussions-badge]][github-discussions-link]
 
-This package provides a simple interface to download datasets used in the ReMat
+This package provides a simple interface to download and upload datasets used in the ReMat
 project.
 
 ## Installation
@@ -32,13 +32,13 @@ nameed `clowder_key.txt` in the directory where you will be running the
 
 ## Usage
 
-The remat-download-data command can be run from your command line. It has
+The remat-data command can be run from your command line. It has
 commands to interact with Clowder spaces and with datasets.
 
 ### List Spaces
 
 ```bash
-remat-download-data spaces list
+remat-data spaces list
 
                       Clowder Spaces
 ┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
@@ -62,7 +62,19 @@ You can re-run this command, and it will skip downloads of datasets that already
 exist in the directory.
 
 ```bash
-remat-download-data spaces download 6669d4d0e4b0a2d1b9b9a797
+remat-data spaces download 6669d4d0e4b0a2d1b9b9a797
+```
+
+
+### Upload Files to Space
+
+Using the `upload` command, you can upload files to a space. The command takes
+the space name and a list of file name to upload. A default dataset is created and the files are uploaded under the newly created dataset
+
+Space names and UUIDs Mapping, and other configurations are stored in the pyproject.toml file.
+
+```bash
+remat-data spaces upload DSC Post Cures data.csv data2.csv
 ```
 
 <!-- SPHINX-START -->
