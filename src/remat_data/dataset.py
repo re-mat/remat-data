@@ -9,11 +9,12 @@ from rich.console import Console
 from rich.progress import track
 from rich.table import Table
 
+from .config import config, space_map
+
 with Path.open(Path("clowder_key.txt")) as f:
     key = f.read().strip()
 
 clowder = ClowderClient(host="https://re-mat.clowder.ncsa.illinois.edu/", key=key)
-
 console = Console()
 
 app = typer.Typer(no_args_is_help=True)
@@ -120,6 +121,91 @@ def download_dataset(dataset_id: str):
         clowder.get_file(
             f"/files/{dsc_file[0]['id']}", download_dir / Path("DSC_Curve.csv")
         )
+
+
+# To Avoid using function call in the fn signature
+file_names_default = typer.Argument(...)
+
+
+# Each space is a typer option
+@spaces_app.command("upload", no_args_is_help=True)
+def upload_file(
+    cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
+    post_cure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
+    front_velocity: bool = typer.Option(
+        False, "--FrontVelocity", help=" Space: Front velocities"
+    ),
+    dataset_name: str = typer.Option(
+        None, "--name", help="Optional name for the dataset"
+    ),
+    file_names: list[str] = file_names_default,
+) -> None:
+    """
+       Upload given files to a specified space
+
+    This command uploads the files given in the arguments to the specified space_name.
+    A default dataset is created and the files are uploaded under the newly created dataset
+
+    Args:
+        cure (bool): Flag to specify the DSC Cure Kinetics space
+        post_cure (bool): Flag to specify the DSC Post Cures space,
+        front_velocity (bool): Flag to specify the Front velocities space.
+        dataset_name (str): Optional name for the dataset. If not provided, a default name is used.
+        file_names List[str]: List of filenames to be uploaded. Files must be present at the directory where remat-data is run
+    Usage:
+       remat-data spaces upload --<space_name> --name <dataset_name> <file1> <file2>
+
+    Example:
+    remat-data spaces upload --DSC_Cure_Kinetics --name Test_Dataset test3.csv DSC_Curve.csv
+    Note:
+    - The space_name flag is mandatory. Use --help to see valid space names
+    - Files to be uploaded must be in the directory where remat-data is installed/run
+    """
+
+    # Keep this dictionary consistent with the space_map in config.py
+    space_names = {
+        "DSC Cure Kinetics": cure,
+        "DSC Post Cures": post_cure,
+        "Front velocities": front_velocity,
+    }
+
+    # Check if more than one space is specified or no space is specified
+    if sum(space_names.values()) != 1:
+        console.print("Error: You must specify exactly one space.")
+        raise typer.Exit(code=1)
+
+    if len(file_names) == 0:
+        console.print("Error: You must specify at least one file to upload.")
+        raise typer.Exit(code=1)
+
+    # Get the first space name that is True (The space given by the user)
+    space_name = next((name for name, value in space_names.items() if value), None)
+    dataset_name = dataset_name if dataset_name else config["default_new_dataset_name"]
+    space_id = space_map[space_name]
+    console.print(f"Uploading to Space: {space_name} and {space_id}")
+
+    # STEP 1: Create a new dummy dataset:
+    payload = {
+        "name": dataset_name,
+        "description": "Dataset created by CLI",
+        "space": [space_id],
+        "collection": [],
+    }
+
+    resp = clowder.post("/datasets/createempty", payload)
+    if not resp:
+        console.print("Upload Failed: Failed to create a new dataset")
+        return
+    dataset_id = resp["id"]
+    dataset_url = f"{config['clowder_base_url']}/{config['dataset_path']}/{dataset_id}?space={space_id}"
+
+    # STEP 2: Upload files to the newly created dataset
+    for file_name in track(file_names, description="Uploading..."):
+        file_id = clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name)
+        if not file_id:
+            console.print(f"Error uploading file {file_name}")
+
+    console.print(f"Uploaded Files to newly created dataset: {dataset_url}")
 
 
 def main():

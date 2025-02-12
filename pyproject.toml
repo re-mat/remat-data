@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "remat-download-data"
+name = "remat-data"
 authors = [
   { name = "Ben Galewsky", email = "bengal1@illinois.edu" },
 ]
@@ -32,13 +32,16 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "pyclowder==2.4.0",
+  "pyclowder==2.7.0",
   "typer==0.12.5",
-  "rich==13.8.1"
+  "rich==13.8.1",
+  "urllib3==1.26.17",
+  "chardet==3.0.4",
+  "six==1.16.0"
 ]
 
 [project.scripts]
-remat-download-data = "remat_download_data.download_dataset:main"
+remat-data = "remat_data.dataset:main"
 
 [project.optional-dependencies]
 test = [
@@ -66,7 +69,7 @@ Changelog = "https://github.com/re-mat/remat-data-downloader/releases"
 
 [tool.hatch]
 version.source = "vcs"
-build.hooks.vcs.version-file = "src/remat_download_data/_version.py"
+build.hooks.vcs.version-file = "src/remat_data/_version.py"
 
 [tool.hatch.envs.default]
 features = ["test"]
