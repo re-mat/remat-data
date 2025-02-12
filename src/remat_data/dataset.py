@@ -125,6 +125,8 @@ def download_dataset(dataset_id: str):
         )
 
 
+# To Avoid using function call in the fn signature
+file_names_default = typer.Argument(...)
 
 # Each space is a typer option
 @spaces_app.command("upload", no_args_is_help=True)
@@ -132,8 +134,9 @@ def upload_file(
         Cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
         PostCure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
         FrontVelocity: bool = typer.Option(False, "--FrontVelocity", help=" Space: Front velocities"),
-        dataset_name: str | None = typer.Option(None, "--name", help="Optional name for the dataset"),
-        file_names: list[str] = typer.Argument(...)) -> None:
+        dataset_name: str = typer.Option(None, "--name", help="Optional name for the dataset"),
+        file_names: list[str] = file_names_default) -> None:
+
     """
        Upload given files to a specified space
 
@@ -166,6 +169,10 @@ def upload_file(
         console.print("Error: You must specify exactly one space.")
         raise typer.Exit(code=1)
 
+    if len(file_names) == 0:
+        console.print("Error: You must specify at least one file to upload.")
+        raise typer.Exit(code=1)
+
     # Get the first space name that is True (The space given by the user)
     space_name = next((name for name, value in space_names.items() if value), None)
     dataset_name = dataset_name if dataset_name else config['default_new_dataset_name']
@@ -179,12 +186,13 @@ def upload_file(
   "space": [space_id],
   "collection": []
 }
+
     resp = clowder.post("/datasets/createempty", payload)
     if not resp:
         console.print("Upload Failed: Failed to create a new dataset")
         return
     dataset_id = resp["id"]
-    dataset_url = f"{config[f'clowder_base_url']}/{config['dataset_path']}/{dataset_id}?space={space_id}"
+    dataset_url = f"{config['clowder_base_url']}/{config['dataset_path']}/{dataset_id}?space={space_id}"
 
     # STEP 2: Upload files to the newly created dataset
     for file_name in track(file_names, description="Uploading..."):
@@ -195,7 +203,6 @@ def upload_file(
 
 
     console.print(f"Uploaded Files to newly created dataset: {dataset_url}")
-
 
 def main():
     app()
