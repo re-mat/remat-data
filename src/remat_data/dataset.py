@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
 import typer
 from pyclowder.client import ClowderClient
-
-
 from rich.console import Console
 from rich.progress import track
 from rich.table import Table
+
 from .config import config, space_map
 
 with Path.open(Path("clowder_key.txt")) as f:
@@ -126,15 +126,20 @@ def download_dataset(dataset_id: str):
 # To Avoid using function call in the fn signature
 file_names_default = typer.Argument(...)
 
+
 # Each space is a typer option
 @spaces_app.command("upload", no_args_is_help=True)
 def upload_file(
-        Cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
-        PostCure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
-        FrontVelocity: bool = typer.Option(False, "--FrontVelocity", help=" Space: Front velocities"),
-        dataset_name: str = typer.Option(None, "--name", help="Optional name for the dataset"),
-        file_names: list[str] = file_names_default) -> None:
-
+    Cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
+    PostCure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
+    FrontVelocity: bool = typer.Option(
+        False, "--FrontVelocity", help=" Space: Front velocities"
+    ),
+    dataset_name: str = typer.Option(
+        None, "--name", help="Optional name for the dataset"
+    ),
+    file_names: list[str] = file_names_default,
+) -> None:
     """
        Upload given files to a specified space
 
@@ -173,17 +178,17 @@ def upload_file(
 
     # Get the first space name that is True (The space given by the user)
     space_name = next((name for name, value in space_names.items() if value), None)
-    dataset_name = dataset_name if dataset_name else config['default_new_dataset_name']
+    dataset_name = dataset_name if dataset_name else config["default_new_dataset_name"]
     space_id = space_map[space_name]
     console.print(f"Uploading to Space: {space_name} and {space_id}")
 
     # STEP 1: Create a new dummy dataset:
-    payload  = {
-  "name": dataset_name,
-  "description": "Dataset created by CLI",
-  "space": [space_id],
-  "collection": []
-}
+    payload = {
+        "name": dataset_name,
+        "description": "Dataset created by CLI",
+        "space": [space_id],
+        "collection": [],
+    }
 
     resp = clowder.post("/datasets/createempty", payload)
     if not resp:
@@ -194,13 +199,12 @@ def upload_file(
 
     # STEP 2: Upload files to the newly created dataset
     for file_name in track(file_names, description="Uploading..."):
-
         file_id = clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name)
         if not file_id:
             console.print(f"Error uploading file {file_name}")
 
-
     console.print(f"Uploaded Files to newly created dataset: {dataset_url}")
+
 
 def main():
     app()

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 config = {
     "default_new_dataset_name": "Default Dataset",
     "clowder_base_url": "https://re-mat.clowder.ncsa.illinois.edu",

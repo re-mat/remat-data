@@ -1,4 +1,5 @@
 # RE-MAT Data
+
 [![Actions Status][actions-badge]][actions-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 
@@ -8,8 +9,8 @@
 
 [![GitHub Discussion][github-discussions-badge]][github-discussions-link]
 
-This package provides a simple interface to download and upload datasets used in the ReMat
-project.
+This package provides a simple interface to download and upload datasets used in
+the ReMat project.
 
 ## Installation
 
@@ -31,8 +32,8 @@ nameed `clowder_key.txt` in the directory where you will be running the
 
 ## Usage
 
-The remat-data command can be run from your command line. It has
-commands to interact with Clowder spaces and with datasets.
+The remat-data command can be run from your command line. It has commands to
+interact with Clowder spaces and with datasets.
 
 ### List Spaces
 
@@ -64,20 +65,22 @@ exist in the directory.
 remat-data spaces download 6669d4d0e4b0a2d1b9b9a797
 ```
 
-
 ### Upload Files to Space
 
 Using the `upload` command, you can upload files to a space. The command takes
-the space name as a flag, optional --name flag for the dataset name and a list of file name to upload. If dataset name is not mentioned, A default dataset is created and the files are uploaded under the newly created dataset
+the space name as a flag, optional --name flag for the dataset name and a list
+of file name to upload. If dataset name is not mentioned, A default dataset is
+created and the files are uploaded under the newly created dataset
 
-Valid values of spaces are: --Cure, --PostCure, --FrontVelocity                                                                                                                         │
+Valid values of spaces are: --Cure, --PostCure, --FrontVelocity │
 
 ```bash
 
- remat-data spaces upload --Cure --name TEST-dataset-2 test3.csv DSC_Curve.csv  
+ remat-data spaces upload --Cure --name TEST-dataset-2 test3.csv DSC_Curve.csv
 ```
 
 ### Configuration
+
 Application configuration and space name to UUID mapping is stored in config.py
 Add new spaces to this config.py file
 
