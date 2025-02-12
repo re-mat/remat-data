@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
-
 import typer
 from pyclowder.client import ClowderClient
 
@@ -206,5 +204,3 @@ def upload_file(
 
 def main():
     app()
-
-
