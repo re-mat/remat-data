@@ -130,9 +130,9 @@ file_names_default = typer.Argument(...)
 # Each space is a typer option
 @spaces_app.command("upload", no_args_is_help=True)
 def upload_file(
-    Cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
-    PostCure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
-    FrontVelocity: bool = typer.Option(
+    cure: bool = typer.Option(False, "--Cure", help=" Space: DSC Cure Kinetics"),
+    postCure: bool = typer.Option(False, "--PostCure", help=" Space: DSC Post Cures"),
+    frontVelocity: bool = typer.Option(
         False, "--FrontVelocity", help=" Space: Front velocities"
     ),
     dataset_name: str = typer.Option(
@@ -147,7 +147,9 @@ def upload_file(
     A default dataset is created and the files are uploaded under the newly created dataset
 
     Args:
-        Each space is a flag that specifies the space to upload the files to.
+        cure (bool): Flag to specify the DSC Cure Kinetics space
+        postCure (bool): Flag to specify the DSC Post Cures space,
+        frontVelocity (bool): Flag to specify the Front velocities space.
         dataset_name (str): Optional name for the dataset. If not provided, a default name is used.
         file_names List[str]: List of filenames to be uploaded. Files must be present at the directory where remat-data is run
     Usage:
@@ -162,9 +164,9 @@ def upload_file(
 
     # Keep this dictionary consistent with the space_map in config.py
     space_names = {
-        "DSC Cure Kinetics": Cure,
-        "DSC Post Cures": PostCure,
-        "Front velocities": FrontVelocity,
+        "DSC Cure Kinetics": cure,
+        "DSC Post Cures": postCure,
+        "Front velocities": frontVelocity,
     }
 
     # Check if more than one space is specified or no space is specified
