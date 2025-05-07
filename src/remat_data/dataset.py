@@ -135,6 +135,11 @@ def upload_file(
     front_velocity: bool = typer.Option(
         False, "--FrontVelocity", help=" Space: Front velocities"
     ),
+    # Below is test space for batch upload
+    # Remove the code after testing
+    test: bool = typer.Option(
+        False, "--Test", help=" Space: TEST Batch Upload (NOT FOR REAL EXPERIMENTS"
+    ),
     dataset_name: str = typer.Option(
         None, "--name", help="Optional name for the dataset"
     ),
@@ -162,11 +167,12 @@ def upload_file(
     - Files to be uploaded must be in the directory where remat-data is installed/run
     """
 
-    # Keep this dictionary consistent with the space_map in config.py
+    # Keep this dictionary consistent with the space_map in src/remat_data/config.py
     space_names = {
         "DSC Cure Kinetics": cure,
         "DSC Post Cures": post_cure,
         "Front velocities": front_velocity,
+        "Test": test,
     }
 
     # Check if more than one space is specified or no space is specified

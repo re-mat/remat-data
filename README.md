@@ -74,6 +74,14 @@ created and the files are uploaded under the newly created dataset
 
 Valid values of spaces are: --Cure, --PostCure, --FrontVelocity │
 
+For help run
+
+```
+remat-data spaces upload --help
+```
+
+Command to upload:
+
 ```bash
 
  remat-data spaces upload --Cure --name TEST-dataset-2 test3.csv DSC_Curve.csv
