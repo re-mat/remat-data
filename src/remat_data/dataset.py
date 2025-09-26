@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 from pathlib import Path
 
+import requests
 import typer
 from pyclowder.client import ClowderClient
 from rich.console import Console
@@ -23,6 +25,25 @@ datasets_app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(spaces_app, name="spaces")
 app.add_typer(datasets_app, name="datasets")
+
+
+def _upload_file_with_mimetype(dataset_id: str, file_path: str) -> bool:
+    """Upload a file to Clowder with an explicit MIME type.
+
+    Ensures formats like .mp4 are sent as video/mp4 instead of application/octet-stream
+    so preview extractors can trigger correctly.
+    """
+    url = f"{config['clowder_base_url']}/api/uploadToDataset/{dataset_id}"
+    guessed_mime_type, _ = mimetypes.guess_type(file_path)
+    if not guessed_mime_type and file_path.lower().endswith(".mp4"):
+        guessed_mime_type = "video/mp4"
+    mime_type = guessed_mime_type or "application/octet-stream"
+    console.print(f"Uploading {file_path} with MIME type {mime_type}")
+    with Path.open(Path(file_path), "rb") as fp:
+        files = {"file": (Path(file_path).name, fp, mime_type)}
+        headers = {"X-API-Key": key}
+        resp = requests.post(url, files=files, headers=headers, timeout=1800)
+        return bool(resp.ok)
 
 
 @spaces_app.command("list")
@@ -206,10 +227,16 @@ def upload_file(
     dataset_url = f"{config['clowder_base_url']}/{config['dataset_path']}/{dataset_id}?space={space_id}"
 
     # STEP 2: Upload files to the newly created dataset
-    for file_name in track(file_names, description="Uploading..."):
-        file_id = clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name)
-        if not file_id:
-            console.print(f"Error uploading file {file_name}")
+    for file_name in track(file_names, description="Uploading...", console=console):
+        mime_type, _ = mimetypes.guess_type(file_name)
+        if mime_type == "video/mp4":
+            ok = _upload_file_with_mimetype(dataset_id, file_name)
+            if not ok:
+                console.print(f"Error uploading file {file_name}")
+        else:
+            file_id = clowder.post_file(f"/uploadToDataset/{dataset_id}", file_name)
+            if not file_id:
+                console.print(f"Error uploading file {file_name}")
 
     console.print(f"Uploaded Files to newly created dataset: {dataset_url}")
 
