@@ -132,15 +132,20 @@ def download_dataset(dataset_id: str):
     with Path.open(Path(f"{dataset_id}/metadata.json"), "w") as metadata_file:
         json.dump(metadata, metadata_file, indent=4)
 
-    dsc_file = [
-        file
-        for file in clowder.get(f"/datasets/{dataset_id}/files")
-        if file["filename"] == "DSC_Curve.csv"
-    ]
+    all_files = clowder.get(f"/datasets/{dataset_id}/files")
+
+    dsc_file = [file for file in all_files if file["filename"] == "DSC_Curve.csv"]
+
+    mp4_file = [file for file in all_files if file["filename"].lower().endswith(".mp4")]
 
     if dsc_file:
         clowder.get_file(
             f"/files/{dsc_file[0]['id']}", download_dir / Path("DSC_Curve.csv")
+        )
+
+    if mp4_file:
+        clowder.get_file(
+            f"/files/{mp4_file[0]['id']}", download_dir / mp4_file[0]["filename"]
         )
 
 
