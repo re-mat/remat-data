@@ -65,6 +65,36 @@ exist in the directory.
 remat-data spaces download 6669d4d0e4b0a2d1b9b9a797
 ```
 
+### List Collections
+
+Collections are another way to organize datasets in Clowder. You can list all
+available collections using the following command:
+
+```bash
+remat-data collections list
+
+                      Clowder Collections
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Name              ┃ ID                       ┃ datasets ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ Example Collection│ 507f1f77bcf86cd799439011 │ 150      │
+└───────────────────┴──────────────────────────┴──────────┘
+
+```
+
+### Download from Collections
+
+Similar to downloading from spaces, you can download all datasets from a
+specific collection using its unique ID. This command will download metadata,
+DSC_Curve.csv files, and any MP4 video files for each dataset in the collection.
+
+```bash
+remat-data collections download 507f1f77bcf86cd799439011
+```
+
+Like the space download command, this will skip datasets that have already been
+downloaded to avoid redundant transfers.
+
 ### Upload Files to Space
 
 Using the `upload` command, you can upload files to a space. The command takes

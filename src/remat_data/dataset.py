@@ -22,9 +22,11 @@ console = Console()
 app = typer.Typer(no_args_is_help=True)
 spaces_app = typer.Typer(no_args_is_help=True)
 datasets_app = typer.Typer(no_args_is_help=True)
+collections_app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(spaces_app, name="spaces")
 app.add_typer(datasets_app, name="datasets")
+app.add_typer(collections_app, name="collections")
 
 
 def _upload_file_with_mimetype(dataset_id: str, file_path: str) -> bool:
@@ -44,6 +46,62 @@ def _upload_file_with_mimetype(dataset_id: str, file_path: str) -> bool:
         headers = {"X-API-Key": key}
         resp = requests.post(url, files=files, headers=headers, timeout=1800)
         return bool(resp.ok)
+
+
+@collections_app.command("list")
+def list_collections() -> None:
+    """
+    List all clowder collections.
+
+    :return:
+    """
+    collections_dict = clowder.get("/collections/allCollections")
+    table = Table(title="Clowder Collections")
+    table.add_column("Name", style="cyan")
+    table.add_column("ID", style="magenta")
+    table.add_column("datasets", style="green")
+
+    for collection in collections_dict:
+        table.add_row(collection["name"], collection["id"], collection["datasetCount"])
+
+    console.print(table)
+
+
+@collections_app.command("download", no_args_is_help=True)
+def download_collection(collection_id: str) -> None:
+    """
+    Download all datasets from a specified Clowder collection.
+
+        This command retrieves all datasets associated with the given collection ID
+        and downloads them to the current directory. The results are placed in
+        a subdirectory named with the dataset's ID. It skips the download if the
+        directory already exists.
+
+        For each dataset it downloads a jsonld metadata file, a DSC_Curve.csv file,
+        and the first MP4 file found (if present).
+
+        Args:
+            collection_id (str): The unique identifier of the Clowder collection to download.
+
+        Usage:
+          remat-download-data collections download <collection_id>
+
+        Example:
+          remat-download-data collections download abc123xyz
+
+        Note:
+        - Ensure you have sufficient disk space before downloading large collections.
+        - The download process may take some time depending on the number and size of datasets.
+    """
+    # First, collect the datasets that need to be downloaded
+    to_download = []
+    datasets = clowder.get(f"/collections/{collection_id}/datasets")
+    for dataset_rec in datasets:
+        if not Path(dataset_rec["id"]).is_dir():
+            to_download.append(dataset_rec)
+
+    for dataset_rec in track(to_download, description="Downloading..."):
+        download_dataset(dataset_rec["id"])
 
 
 @spaces_app.command("list")
