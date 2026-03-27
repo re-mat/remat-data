@@ -16,7 +16,7 @@ from .config import config, space_map
 with Path.open(Path("clowder_key.txt")) as f:
     key = f.read().strip()
 
-clowder = ClowderClient(host=config['clowder_base_url'], key=key)
+clowder = ClowderClient(host=config["clowder_base_url"], key=key)
 console = Console()
 
 app = typer.Typer(no_args_is_help=True)
