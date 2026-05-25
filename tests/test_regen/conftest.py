@@ -141,7 +141,6 @@ def cycle_fixture(temp_submission_dir: Path) -> Path:
     for name in ["A", "B"]:
         subdir = temp_submission_dir / name
         subdir.mkdir(parents=True)
-
     create_regen_xlsx(
         temp_submission_dir / "A" / "Data Entry_Test.xlsx", parent_refs=["B"]
     )
