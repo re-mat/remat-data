@@ -37,7 +37,8 @@ dependencies = [
   "rich==13.8.1",
   "urllib3==1.26.17",
   "chardet==3.0.4",
-  "six==1.16.0"
+  "six==1.16.0",
+  "openpyxl>=3.0.0"
 ]
 
 [project.scripts]

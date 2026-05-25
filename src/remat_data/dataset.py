@@ -12,6 +12,7 @@ from rich.progress import track
 from rich.table import Table
 
 from .config import config, space_map
+from .regen.cli import regen_app
 
 with Path.open(Path("clowder_key.txt")) as f:
     key = f.read().strip()
@@ -27,6 +28,7 @@ collections_app = typer.Typer(no_args_is_help=True)
 app.add_typer(spaces_app, name="spaces")
 app.add_typer(datasets_app, name="datasets")
 app.add_typer(collections_app, name="collections")
+app.add_typer(regen_app, name="regen")
 
 
 def _upload_file_with_mimetype(dataset_id: str, file_path: str) -> bool:
