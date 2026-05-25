@@ -4,18 +4,22 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .parser import ParentRef, RegenSheet
+from .parser import RegenSheet
 
 
 @dataclass
 class ValidationError:
+    """Represents a single validation failure with a code, location, and message."""
+
     code: str
     subdir: Path | None
     message: str
     involved: list[str] = field(default_factory=list)
 
 
-def build_graph(sheets: dict[str, RegenSheet]) -> tuple[dict[str, list[str]], list[ValidationError]]:
+def build_graph(
+    sheets: dict[str, RegenSheet],
+) -> tuple[dict[str, list[str]], list[ValidationError]]:
     """
     Build dependency graph from sheets.
     Returns (graph, errors) where graph is {child_identity: [parent_identities]}.
@@ -58,7 +62,9 @@ def build_graph(sheets: dict[str, RegenSheet]) -> tuple[dict[str, list[str]], li
     return graph, errors
 
 
-def topological_sort(graph: dict[str, list[str]]) -> tuple[list[str], list[ValidationError]]:
+def topological_sort(
+    graph: dict[str, list[str]],
+) -> tuple[list[str], list[ValidationError]]:
     """
     Kahn's algorithm for topological sort.
     Returns (ordered_list, cycle_errors).
@@ -78,7 +84,7 @@ def topological_sort(graph: dict[str, list[str]]) -> tuple[list[str], list[Valid
             graph[node] = []
 
     for child, parents in graph.items():
-        for parent in parents:
+        for _parent in parents:
             in_degree[child] += 1
 
     queue = deque([node for node in all_nodes if in_degree[node] == 0])

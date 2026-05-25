@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .graph import build_graph, topological_sort, ValidationError
+from .graph import ValidationError, build_graph, topological_sort
 from .identity import DirectoryNameResolver, IdentityResolver
 from .parser import find_xlsx_in_subdir, parse_regen_sheet
 from .report import ValidationReport
@@ -79,7 +79,9 @@ def validate_directory(
             )
             continue
 
-        identity = resolver.resolve(subdir, sheet.workbook_handle or sheet.load_workbook())
+        identity = resolver.resolve(
+            subdir, sheet.workbook_handle or sheet.load_workbook()
+        )
         sheet.identity = identity
 
         if identity in sheets:
@@ -122,8 +124,14 @@ def validate_directory(
 
     roots = [identity for identity, sheet in sheets.items() if sheet.is_root]
 
-    ordered_subdirs = [sheets[identity].subdir for identity in topo_order if identity in sheets]
+    ordered_subdirs = [
+        sheets[identity].subdir for identity in topo_order if identity in sheets
+    ]
 
     return ValidationReport(
-        ordered_subdirs=ordered_subdirs, graph=graph, roots=roots, sheets=sheets, errors=errors
+        ordered_subdirs=ordered_subdirs,
+        graph=graph,
+        roots=roots,
+        sheets=sheets,
+        errors=errors,
     )

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 from openpyxl import Workbook
@@ -73,9 +72,7 @@ def diamond(temp_submission_dir: Path) -> Path:
 
         if name == "A":
             create_regen_xlsx(xlsx_path, parent_refs=[])
-        elif name == "B":
-            create_regen_xlsx(xlsx_path, parent_refs=["A"])
-        elif name == "C":
+        elif name in ("B", "C"):
             create_regen_xlsx(xlsx_path, parent_refs=["A"])
         elif name == "D":
             create_regen_xlsx(xlsx_path, parent_refs=["B", "C"])
@@ -144,10 +141,12 @@ def cycle_fixture(temp_submission_dir: Path) -> Path:
     for name in ["A", "B"]:
         subdir = temp_submission_dir / name
         subdir.mkdir(parents=True)
-        xlsx_path = subdir / "Data Entry_Test.xlsx"
-
-    create_regen_xlsx(temp_submission_dir / "A" / "Data Entry_Test.xlsx", parent_refs=["B"])
-    create_regen_xlsx(temp_submission_dir / "B" / "Data Entry_Test.xlsx", parent_refs=["A"])
+    create_regen_xlsx(
+        temp_submission_dir / "A" / "Data Entry_Test.xlsx", parent_refs=["B"]
+    )
+    create_regen_xlsx(
+        temp_submission_dir / "B" / "Data Entry_Test.xlsx", parent_refs=["A"]
+    )
 
     return temp_submission_dir
 

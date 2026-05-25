@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from rich.console import Console
@@ -14,6 +14,8 @@ from .parser import RegenSheet
 
 @dataclass
 class ValidationReport:
+    """Aggregates validation results including ordering, graph, and any errors."""
+
     ordered_subdirs: list[Path]
     graph: dict[str, list[str]]
     roots: list[str]
@@ -69,13 +71,12 @@ class ValidationReport:
 
             children = [c for c, ps in self.graph.items() if node_id in ps]
             for child in sorted(children):
-                child_node = tree_node.label if tree_node.label == child else None
-                if not child_node:
-                    child_node = tree_node.add(f"[green]{child}[/green]")
-                add_children(child_node, child, visited)
+                child_tree = tree_node.add(f"[green]{child}[/green]")
+                add_children(child_tree, child, visited)
 
         for root_id in sorted(self.roots):
-            root.add(f"[yellow]{root_id}[/yellow] (root)")
+            root_tree = root.add(f"[yellow]{root_id}[/yellow] (root)")
+            add_children(root_tree, root_id)
 
         console.print(root)
 

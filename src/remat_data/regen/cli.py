@@ -5,7 +5,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from .identity import DirectoryNameResolver
+from .identity import DirectoryNameResolver, FilenameStemResolver
 from .validate import validate_directory
 
 regen_app = typer.Typer(no_args_is_help=True)
@@ -41,7 +41,7 @@ def validate(
         console.print(f"[red]Error: Path is not a directory: {directory}[/red]")
         raise typer.Exit(code=1)
 
-    resolver = DirectoryNameResolver()
+    resolver = FilenameStemResolver() if id_mode == "file" else DirectoryNameResolver()
 
     report = validate_directory(submission_path, resolver=resolver)
 

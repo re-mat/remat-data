@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from remat_data.regen import validate_directory
-from remat_data.regen.identity import DirectoryNameResolver, FilenameStemResolver
+from remat_data.regen.identity import DirectoryNameResolver
 
 
 class TestSimpleChain:

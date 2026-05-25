@@ -9,6 +9,8 @@ from openpyxl import load_workbook
 
 @dataclass
 class ParentRef:
+    """A reference to a parent experiment extracted from the oligomers sheet."""
+
     value: str
     cell: str
     sheet: str = "oligomers"
@@ -16,6 +18,8 @@ class ParentRef:
 
 @dataclass
 class RegenSheet:
+    """Parsed representation of a single ReGen experiment subdirectory."""
+
     subdir: Path
     xlsx_path: Path
     identity: str
@@ -34,7 +38,7 @@ def find_xlsx_in_subdir(subdir: Path) -> list[Path]:
     return sorted(subdir.glob("Data Entry_*.xlsx"))
 
 
-def parse_regen_sheet(subdir: Path, resolver: Any = None) -> RegenSheet | None:
+def parse_regen_sheet(subdir: Path, _resolver: Any = None) -> RegenSheet | None:
     """
     Parse a single experiment subdirectory.
     Returns RegenSheet with parents extracted from oligomers tab, or None if invalid.
@@ -50,13 +54,17 @@ def parse_regen_sheet(subdir: Path, resolver: Any = None) -> RegenSheet | None:
 
     try:
         wb = load_workbook(xlsx_path, data_only=False, read_only=True)
-    except Exception:
+    except (OSError, ValueError, KeyError):
         return None
 
     if "oligomers" not in wb.sheetnames:
         identity = subdir.name
         return RegenSheet(
-            subdir=subdir, xlsx_path=xlsx_path, identity=identity, parents=[], is_root=True
+            subdir=subdir,
+            xlsx_path=xlsx_path,
+            identity=identity,
+            parents=[],
+            is_root=True,
         )
 
     ws = wb["oligomers"]
@@ -73,13 +81,19 @@ def parse_regen_sheet(subdir: Path, resolver: Any = None) -> RegenSheet | None:
         if cell_text.upper() == "PROCEDURE":
             break
 
-        parents.append(ParentRef(value=cell_text, cell=f"A{row_idx}", sheet="oligomers"))
+        parents.append(
+            ParentRef(value=cell_text, cell=f"A{row_idx}", sheet="oligomers")
+        )
 
     identity = subdir.name
     is_root = len(parents) == 0
 
     sheet = RegenSheet(
-        subdir=subdir, xlsx_path=xlsx_path, identity=identity, parents=parents, is_root=is_root
+        subdir=subdir,
+        xlsx_path=xlsx_path,
+        identity=identity,
+        parents=parents,
+        is_root=is_root,
     )
     sheet.workbook_handle = wb
     return sheet

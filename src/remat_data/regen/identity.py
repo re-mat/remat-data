@@ -7,6 +7,8 @@ from openpyxl import Workbook
 
 
 class IdentityResolver(ABC):
+    """Abstract base for strategies that derive a unique identity string from a submission."""
+
     @abstractmethod
     def resolve(self, subdir: Path, workbook: Workbook) -> str:
         pass
@@ -15,14 +17,14 @@ class IdentityResolver(ABC):
 class DirectoryNameResolver(IdentityResolver):
     """Option 1: Use directory name as identity."""
 
-    def resolve(self, subdir: Path, workbook: Workbook) -> str:
+    def resolve(self, subdir: Path, _workbook: Workbook) -> str:
         return subdir.name
 
 
 class FilenameStemResolver(IdentityResolver):
     """Option 2: Use xlsx filename stem as identity."""
 
-    def resolve(self, subdir: Path, workbook: Workbook) -> str:
+    def resolve(self, subdir: Path, _workbook: Workbook) -> str:
         xlsx_files = list(subdir.glob("Data Entry_*.xlsx"))
         if xlsx_files:
             return xlsx_files[0].stem
@@ -43,6 +45,6 @@ class OligoIdCellResolver(IdentityResolver):
                 value = ws[self.cell].value
                 if value is not None:
                     return str(value).strip()
-        except Exception:
+        except (KeyError, AttributeError, TypeError, ValueError):
             pass
         return subdir.name
