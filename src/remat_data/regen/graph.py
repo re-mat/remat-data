@@ -9,8 +9,6 @@ from .parser import RegenSheet
 
 @dataclass
 class ValidationError:
-    """Represents a single validation failure with a code, location, and message."""
-
     code: str
     subdir: Path | None
     message: str
