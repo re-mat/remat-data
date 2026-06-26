@@ -158,3 +158,5 @@ Thumbs.db
 *.swp
 .idea/
 clowder_key.txt
+
+Clowder/*
