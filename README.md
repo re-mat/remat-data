@@ -117,6 +117,36 @@ Command to upload:
  remat-data spaces upload --Cure --name TEST-dataset-2 test3.csv DSC_Curve.csv
 ```
 
+### Upload a ReGen Bulk Submission Directory
+
+The `regen upload` command validates and uploads a ReGen bulk submission
+directory to Clowder. The directory should contain one subdirectory per
+experiment, each with exactly one `Data Entry_*.xlsx` file. Experiments are
+uploaded in topological order (parents before children), and a 'Parent Dataset
+URL' column is appended to the oligomers tab of each child experiment's xlsx
+file before it is uploaded.
+
+You can validate the directory structure without uploading anything using
+`--dry-run`, or check it ahead of time with the standalone `regen validate`
+command:
+
+```bash
+remat-data regen validate path/to/submission_folder
+```
+
+To upload, pass the directory and the target space (a name from the space map,
+e.g. `ReGen`, or a raw Clowder space UUID):
+
+```bash
+remat-data regen upload path/to/submission_folder --space ReGen
+```
+
+For help run
+
+```bash
+remat-data regen upload --help
+```
+
 ### Configuration
 
 Application configuration and space name to UUID mapping is stored in config.py
