@@ -2,8 +2,8 @@
 
 ReGen (Regeneration) experiments track multi-generation polymer cycles — each
 generation is deconstructed into oligomers and repolymerized into the next
-generation. This tool validates a folder of ReGen experiments before uploading
-to Clowder.
+generation. This tool validates a folder of ReGen experiments and uploads them
+to Clowder in dependency order.
 
 ---
 
@@ -81,13 +81,57 @@ found.
 
 ---
 
+## Uploading to Clowder
+
+```bash
+# Upload all experiments to a named space
+remat-data regen upload /path/to/submission_folder --space "Test"
+
+# Use a raw space UUID instead of a name
+remat-data regen upload /path/to/submission_folder --space 67edd4e8e4b00fd657cdd863
+
+# Dry run — validate only, no uploads
+remat-data regen upload /path/to/submission_folder --space "Test" --dry-run
+```
+
+The upload command:
+
+1. Validates the submission directory first — aborts with exit code `1` if any
+   errors are found.
+2. Prints the dependency graph and creation order.
+3. Uploads each experiment to Clowder in topological order (parents before
+   children). Each experiment becomes a new dataset in the specified space.
+4. For child experiments, appends a **`Parent Dataset URL`** column to the
+   `oligomers` tab of the xlsx before uploading. Column A (Oligo ID) is left
+   unchanged.
+5. Prints an upload summary table with each experiment's Dataset ID and URL.
+
+> **Note:** `--space` accepts any name from the table below or a raw UUID.
+>
+> | Name              | Space UUID               |
+> | ----------------- | ------------------------ |
+> | DSC Cure Kinetics | 6810f088e4b00420021cff64 |
+> | DSC Post Cures    | 6669d4d0e4b0a2d1b9b9a797 |
+> | Front velocities  | 6674972be4b0a2d1b9ba0228 |
+> | Test              | 67edd4e8e4b00fd657cdd863 |
+
+Requires `clowder_key.txt` in the current working directory.
+
+---
+
 ## Running the Test Suite
 
 From the repo root:
 
 ```bash
-# Run all ReGen tests
+# Run all ReGen tests (validation + upload)
 pytest tests/test_regen -v
+
+# Run only validation tests
+pytest tests/test_regen/test_validate.py -v
+
+# Run only upload tests
+pytest tests/test_regen/test_upload.py -v
 
 # Run a specific test class
 pytest tests/test_regen -v -k "TestSimpleChain"
@@ -96,8 +140,8 @@ pytest tests/test_regen -v -k "TestSimpleChain"
 pytest tests/test_regen -v -k "TestMissing or TestCycle or TestSelf or TestNo or TestMultiple"
 ```
 
-All tests use programmatically generated fixtures — no real xlsx files are
-needed.
+All tests use programmatically generated fixtures — no real xlsx files or
+Clowder connection are needed. Upload tests mock the `ClowderClient`.
 
 ---
 

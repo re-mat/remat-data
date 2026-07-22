@@ -11,5 +11,6 @@ space_map = {
     "DSC Cure Kinetics": "6810f088e4b00420021cff64",
     "DSC Post Cures": "6669d4d0e4b0a2d1b9b9a797",
     "Front velocities": "6674972be4b0a2d1b9ba0228",
-    "Test": "67edd4e8e4b00fd657cdd863",
+    "Test": "6a3e1dbde4b061139149d7b3",
+    "ReGen": "67911073e4b0443d9f6818b4",
 }

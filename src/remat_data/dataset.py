@@ -226,6 +226,9 @@ def upload_file(
     test: bool = typer.Option(
         False, "--Test", help=" Space: TEST Batch Upload (NOT FOR REAL EXPERIMENTS"
     ),
+    regen: bool = typer.Option(
+        False, "--Regen", help=" Space: Regen Test Upload (NOT FOR REAL EXPERIMENTS"
+    ),
     dataset_name: str = typer.Option(
         None, "--name", help="Optional name for the dataset"
     ),
@@ -259,6 +262,7 @@ def upload_file(
         "DSC Post Cures": post_cure,
         "Front velocities": front_velocity,
         "Test": test,
+        "ReGen": regen,
     }
 
     # Check if more than one space is specified or no space is specified
